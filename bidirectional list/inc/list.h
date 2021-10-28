@@ -21,7 +21,7 @@ public:
 private:
 	class Node;
 
-	buffer<Node> *mBuff;
+	buffer<Node> mBuff;
 	Node* mHead = nullptr;
 	Node* mTail = nullptr;
 	size_type mSize = 0;
@@ -36,42 +36,8 @@ private:
 public:
 /*	constructor ------------------------------------------------------------------------------------- */
 	list() noexcept {
-		mBuff = new buffer<Node>;
-		Node *fictitious = new(mBuff->getPlaceForFictive()) Node;
+		Node *fictitious = new(mBuff.getPlaceForFictitious()) Node;
 		mHead = mTail = fictitious;
-	}
-
-	// This is an analog of the list's constructor from STL (std::list<T> l(size))
-	// It calls the constructor without no arguments and then create N = size elements
-	explicit list(size_type size, T data = T()) noexcept: list() {
-		for (size_type i = 0; i<size; ++i)
-			push_front(data);
-	}
-
-	// It also an analog of the STL initializer_list constructor
-	list(const std::initializer_list<T> &init_list): list() {
-		for (const auto &i : init_list)
-		{
-			push_back(i);
-		}
-	}
-
-	// Deep copy constructor. It copies every Node from the source to the target list
-	list(const list &other) noexcept: list() {
-		for (size_type i = 0; i<other.mSize; ++i)
-		{
-			Node temp = other.mBuff->getNode(i+1);
-			push_back(temp.getData());
-		}
-	}
-
-	// Move semantic constructor that uses my swap function
-	list(list &&other) : list() {
-		swap(*this, other);
-	}
-/*	destructor -------------------------------------------------------------------------------------- */
-	~list(){
-		delete mBuff;
 	}
 /*	elements access --------------------------------------------------------------------------------- */
 	reference front() {
@@ -81,40 +47,18 @@ public:
 	reference back() {
 		return mTail->mPrev->mData;
 	}
-
 /*	capacity ---------------------------------------------------------------------------------------- */
 	bool isEmpty() const noexcept {
 		return mHead == mTail;
 	}
+
 	size_type size() const noexcept {
 		return mSize;
 	}
 
-/*	iterator ---------------------------------------------------------------------------------------- */
-	iterator begin() noexcept {
-		return iterator(mHead);
-	}
-	iterator end() noexcept {
-		return iterator(mTail);
-	}
-
-	reverse_iterator rbegin() noexcept {
-		return std::make_reverse_iterator(iterator(mTail));
-	}
-
-	reverse_iterator rend() noexcept {
-		return std::make_reverse_iterator(iterator(mHead));
-	}
 /*	modifiers --------------------------------------------------------------------------------------- */
-
-	// this method calls the buffer's clear method, which destroy all the Node except fictitious
-	void clear() noexcept {
-		mBuff->clear();
-		mSize = 0;
-	}
-
-	void push_front(const value_type data = T()) {
-		Node *temp = new(mBuff->push()) Node(data);
+	void push_front(const T data = T()) {
+		Node *temp = new(mBuff.push()) Node(data);
 		temp->mNext = mHead;
 		temp->mPrev = nullptr;
 		mHead->mPrev = temp;
@@ -126,7 +70,7 @@ public:
 		if (isEmpty()) push_front(data);
 		else
 		{
-			Node *temp = new(mBuff->push()) Node(data);
+			Node *temp = new(mBuff.push()) Node(data);
 			temp->mNext = mTail;
 			temp->mPrev = mTail->mPrev;
 			mTail->mPrev->mNext = temp;
@@ -141,7 +85,7 @@ public:
 			Node *temp = mHead;
 			mHead = temp->mNext;
 			mHead->mPrev = nullptr;
-			mBuff->pop(temp);
+			mBuff.pop(temp);
 			--mSize;
 		}
 	}
@@ -155,125 +99,18 @@ public:
 				Node *temp = mTail->mPrev;
 				mTail->mPrev = temp->mPrev;
 				temp->mPrev->mNext = mTail;
-				mBuff->pop(temp);
+				mBuff.pop(temp);
 				--mSize;
 			}
 		}
 	}
 
-	void insert(iterator& pos, const value_type &data){
-		iterator headIterator(mHead);
-		if (pos == headIterator) push_front(data);
-		else
-			if (pos == iterator(mTail)) push_back(data);
-			else
-			{
-				Node *temp = new(mBuff->push()) Node(data);
-				Node *before = mHead, *after;
-				--pos;
-				for (; headIterator != pos; before = before->mNext);
-				after = before->mNext;
-				temp->mNext = after;	temp->mPrev = before;
-				after->mPrev = temp;	before->mNext = temp;
-				++mSize;
-			}
+
+	void show()const{
+		mBuff.showbuff();
 	}
 
-	// Delete 1 Node from list
-	void erase(iterator& pos) {
-		iterator headIterator(mHead);
-		if (pos == headIterator) pop_front();
-		else
-			if (pos == iterator(mTail)) pop_back();
-			else
-			{
-				Node *before = mHead, *after;
-				--pos;
-				for (; headIterator != pos; before = before->mNext);
-				Node *temp = before->mNext;
-				after = temp->mNext;
-				before->mNext = temp->mNext;
-				after->mPrev = temp->mPrev;
-				mBuff->pop(temp);
-				--mSize;
-			}
-	}
-
-	// Delete a range [first, second] of Node from list
-	void erase(iterator& first, iterator& second) {
-		iterator headIterator(mHead);
-		iterator tailIterator(mTail);
-		if (first == second) erase(first);
-		else if (first == headIterator)
-		{
-			while (first != second)
-			{
-				first++;
-				pop_front();
-			}
-		}
-		else if (second == tailIterator)
-		{
-			second--;
-			while (first != second)
-			{
-				second--;
-				pop_back();
-			}
-			pop_back();
-		}
-		else
-		{
-			while (first != second)
-			{
-				Node *before = mHead, *after;
-				--first;
-				for (; headIterator != first; before = before->mNext);
-				Node *temp = before->mNext;
-				after = temp->mNext;
-				before->mNext = temp->mNext;
-				after->mPrev = temp->mPrev;
-				mBuff->pop(temp);
-				--mSize;
-				first++;
-			}
-		}
-	}
-/*	operator ---------------------------------------------------------------------------------------- */
-
-	list<T>& operator = (const list &other) {
-		if (this == &other) return *this;
-		while(mHead->mNext != nullptr)
-		{
-			pop_front();
-		}
-		for (size_type i = 0; i<other.mSize; ++i)
-		{
-			Node temp = other.mBuff->getNode(i+1);
-			push_back(temp.getData());
-		}
-		return *this;
-	}
-
-	list<T>& operator = (list &&other) noexcept {
-		swap(*this, other);
-		return *this;
-	}
-
-	void sort();
 };
-
-template <typename T>
-void list<T>::sort(){
-	for (auto i = begin(); i != end(); ++i)
-		for (auto j = begin(); j != end(); ++j)
-			if (*i > *j)
-			{
-				auto temp = *i;
-				*i = *j;
-				*j = temp;
-			}
-}
 
 
 
@@ -291,6 +128,7 @@ public:
 	T getData() const {
 		return mData;
 	}
+
 };
 
 template <typename T>
