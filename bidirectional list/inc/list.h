@@ -10,6 +10,7 @@ template <typename T>
 class list{
 public:
 	class iterator;
+
 	using const_iterator = iterator;
 	using reverse_iterator = std::reverse_iterator<iterator>;
 
