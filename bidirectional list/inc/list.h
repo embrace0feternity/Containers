@@ -10,6 +10,7 @@ template <typename T>
 class list{
 public:
 	class iterator;
+
 	using const_iterator = iterator;
 	using reverse_iterator = std::reverse_iterator<iterator>;
 
@@ -21,7 +22,7 @@ public:
 private:
 	class Node;
 
-	buffer<Node> *mBuff;
+	buffer<Node> mBuff;
 	Node* mHead = nullptr;
 	Node* mTail = nullptr;
 	size_type mSize = 0;
@@ -36,13 +37,9 @@ private:
 public:
 /*	constructor ------------------------------------------------------------------------------------- */
 	list() noexcept {
-		mBuff = new buffer<Node>;
-		Node *fictitious = new(mBuff->getPlaceForFictive()) Node;
+		Node *fictitious = new(mBuff.getPlaceForFictitious()) Node;
 		mHead = mTail = fictitious;
 	}
-
-	// This is an analog of the list's constructor from STL (std::list<T> l(size))
-	// It calls the constructor without no arguments and then create N = size elements
 	explicit list(size_type size, T data = T()) noexcept: list() {
 		for (size_type i = 0; i<size; ++i)
 			push_front(data);
@@ -69,10 +66,10 @@ public:
 	list(list &&other) : list() {
 		swap(*this, other);
 	}
+
 /*	destructor -------------------------------------------------------------------------------------- */
-	~list(){
-		delete mBuff;
-	}
+	~list() = default;
+
 /*	elements access --------------------------------------------------------------------------------- */
 	reference front() {
 		return mHead->mData;
@@ -81,40 +78,22 @@ public:
 	reference back() {
 		return mTail->mPrev->mData;
 	}
-
 /*	capacity ---------------------------------------------------------------------------------------- */
 	bool isEmpty() const noexcept {
 		return mHead == mTail;
 	}
+
 	size_type size() const noexcept {
 		return mSize;
 	}
 
-/*	iterator ---------------------------------------------------------------------------------------- */
-	iterator begin() noexcept {
-		return iterator(mHead);
-	}
-	iterator end() noexcept {
-		return iterator(mTail);
-	}
-
-	reverse_iterator rbegin() noexcept {
-		return std::make_reverse_iterator(iterator(mTail));
-	}
-
-	reverse_iterator rend() noexcept {
-		return std::make_reverse_iterator(iterator(mHead));
-	}
 /*	modifiers --------------------------------------------------------------------------------------- */
-
-	// this method calls the buffer's clear method, which destroy all the Node except fictitious
-	void clear() noexcept {
-		mBuff->clear();
-		mSize = 0;
+	void clear(){
+		while(!isEmpty()) pop_back();
 	}
 
-	void push_front(const value_type data = T()) {
-		Node *temp = new(mBuff->push()) Node(data);
+	void push_front(const T data = T()) {
+		Node *temp = new(mBuff.push()) Node(data);
 		temp->mNext = mHead;
 		temp->mPrev = nullptr;
 		mHead->mPrev = temp;
@@ -126,7 +105,7 @@ public:
 		if (isEmpty()) push_front(data);
 		else
 		{
-			Node *temp = new(mBuff->push()) Node(data);
+			Node *temp = new(mBuff.push()) Node(data);
 			temp->mNext = mTail;
 			temp->mPrev = mTail->mPrev;
 			mTail->mPrev->mNext = temp;
@@ -141,7 +120,7 @@ public:
 			Node *temp = mHead;
 			mHead = temp->mNext;
 			mHead->mPrev = nullptr;
-			mBuff->pop(temp);
+			mBuff.pop(temp);
 			--mSize;
 		}
 	}
@@ -155,7 +134,7 @@ public:
 				Node *temp = mTail->mPrev;
 				mTail->mPrev = temp->mPrev;
 				temp->mPrev->mNext = mTail;
-				mBuff->pop(temp);
+				mBuff.pop(temp);
 				--mSize;
 			}
 		}
@@ -239,8 +218,8 @@ public:
 			}
 		}
 	}
-/*	operator ---------------------------------------------------------------------------------------- */
 
+/*	operator ---------------------------------------------------------------------------------------- */
 	list<T>& operator = (const list &other) {
 		if (this == &other) return *this;
 		while(mHead->mNext != nullptr)
@@ -260,20 +239,10 @@ public:
 		return *this;
 	}
 
-	void sort();
+	void show()const{
+		mBuff.showbuff();
+	}
 };
-
-template <typename T>
-void list<T>::sort(){
-	for (auto i = begin(); i != end(); ++i)
-		for (auto j = begin(); j != end(); ++j)
-			if (*i > *j)
-			{
-				auto temp = *i;
-				*i = *j;
-				*j = temp;
-			}
-}
 
 
 
@@ -291,6 +260,7 @@ public:
 	T getData() const {
 		return mData;
 	}
+
 };
 
 template <typename T>
