@@ -9,8 +9,10 @@
 #include <utility>
 #include <iterator>
 #include <initializer_list>
+#include <array>
 
-template <typename T>
+
+template <typename T, size_t maxSize>
 class list{
 public:
     class iterator;
@@ -26,13 +28,13 @@ public:
 private:
     class Node;
 
-    buffer<Node> mBuff;
+    buffer<Node, maxSize+1> mBuff;
     Node* mHead = nullptr;
     Node* mTail = nullptr;
     size_type mSize = 0;
 
     // This function is using into move constructor and move operator
-    friend void swap(list<T> &first, list<T> &second) noexcept {
+    friend void swap(list<T, maxSize> &first, list<T, maxSize> &second) noexcept {
         std::swap(first.mHead, second.mHead);
         std::swap(first.mTail, second.mTail);
         std::swap(first.mSize, second.mSize);
@@ -41,17 +43,13 @@ private:
 public:
 /*	constructor ------------------------------------------------------------------------------------- */
     list() noexcept {
-        Node *fictitious = new(mBuff.getPlaceForFictitious()) Node;
+        Node *fictitious = mBuff.get();
         mHead = mTail = fictitious;
-    }
-    explicit list(size_type size, T data = T()) noexcept: list() {
-        for (size_type i = 0; i<size; ++i)
-            push_front(data);
     }
 
     // It also an analog of the STL initializer_list constructor
     list(const std::initializer_list<T> &init_list): list() {
-        for (const auto &i : init_list)
+        for (const auto &i: init_list)
         {
             push_back(i);
         }
@@ -59,11 +57,13 @@ public:
 
     // Deep copy constructor. It copies every Node from the source to the target list
     list(const list &other) noexcept: list() {
-        for (size_type i = 0; i<other.mSize; ++i)
+        mBuff = other.mBuff;
+        /*for (size_type i = 0; i<other.mSize; ++i)
         {
             Node temp = other.mBuff.getNode(i+1);
             push_back(temp.getData());
         }
+         */
     }
 
     // Move semantic constructor that uses my swap function
@@ -110,35 +110,28 @@ public:
         while(!isEmpty()) pop_back();
     }
 
-    void push_front(const T data = T()) {
-        Node *temp = new(mBuff.push()) Node(data);
+    void push_front(const T& data) {
+        Node *temp = mBuff.createNode(Node(data));
         temp->mNext = mHead;
         temp->mPrev = nullptr;
         mHead->mPrev = temp;
         mHead = temp;
-        if (mSize >= mBuff.getSize())
-        {
-            mSize = 0;
-            mTail->mPrev = mHead;
-            mHead->mNext = mTail;
-        }
-        ++mSize;
+        if (mSize <= maxSize)
+            ++mSize;
+
     }
 
-    void push_back(const value_type data) {
-        if (mSize >= mBuff.getSize()) {
-            mSize = 0;
-            mHead = mTail;
-        }
+    void push_back(const T& data) {
         if (isEmpty()) push_front(data);
         else
         {
-                Node *temp = new(mBuff.push()) Node(data);
-                temp->mNext = mTail;
-                temp->mPrev = mTail->mPrev;
-                mTail->mPrev->mNext = temp;
-                mTail->mPrev = temp;
-                ++mSize;
+            Node *temp = mBuff.createNode(Node(data));
+               temp->mNext = mTail;
+               temp->mPrev = mTail->mPrev;
+               mTail->mPrev->mNext = temp;
+               mTail->mPrev = temp;
+               if (mSize < maxSize)
+                   ++mSize;
          }
     }
 
@@ -249,7 +242,7 @@ public:
     }
 
 /*	operator ---------------------------------------------------------------------------------------- */
-    list<T>& operator = (const list &other) {
+    list<T, maxSize>& operator = (const list &other) {
         if (this == &other) return *this;
         while(mHead->mNext != nullptr)
         {
@@ -263,18 +256,31 @@ public:
         return *this;
     }
 
-    list<T>& operator = (list &&other) noexcept {
+    list<T, maxSize>& operator = (list &&other) noexcept {
         swap(*this, other);
+        mBuff = other.mBuff;
+        other.mBuff.~buffer();
         return *this;
+        mBuff = std::move(other.mBuff);
+        mHead = other.mHead;
+        mTail = other.mTail;
+        mSize = other.mSize;
+
+        other.mHead = nullptr;
+        other.mTail = nullptr;
+        other.mSize = 0;
+         return *this;
     }
 
     void show()const{
+
         Node *temp = mHead;
         while(temp->mNext)
         {
             std::cout << temp->mData << std::endl;
             temp = temp->mNext;
         }
+
         mBuff.showbuff();
     }
 };
@@ -282,8 +288,8 @@ public:
 
 
 
-template <typename T>
-class list<T>::Node{
+template <typename T, size_t maxSize>
+class list<T, maxSize>::Node{
 public:
     T mData;
     Node *mNext = nullptr;
@@ -298,8 +304,8 @@ public:
 
 };
 
-template <typename T>
-class list<T>::iterator{
+template <typename T, size_t maxSize>
+class list<T, maxSize>::iterator{
 public:
     using value_type = T;
     using pointer = T*;
@@ -346,8 +352,8 @@ public:
         return *this;
     }
 
-    iterator operator -- (int) { // postfix
-        iterator temp = *this;
+    const iterator operator -- (int) { // postfix
+        const iterator temp = *this;
         if (mIter->mPrev != nullptr) mIter = mIter->mPrev;
         return temp;
     }

@@ -6,49 +6,43 @@
 #define BIDIRECTIONAL_LIST_BUFFER_H
 
 #include <memory>
+#include "list.h"
 #include <array>
 #include <iostream>
 
-template <typename T>
+template <typename T, size_t maxSize>
 class buffer{
 private:
-    inline static constexpr size_t mSize = 11;
+    inline static constexpr size_t mSize = maxSize;
     std::array<T, mSize> mBuff;
-    T *current = &mBuff[0];
+    T* mCurrent = &mBuff[0];
 public:
-    buffer() = default;
-    T* push(){
-        size_t i =1;
-        for (; i<mSize; ++i){
-            if (mBuff[i].mNext == nullptr && mBuff[i].mPrev == nullptr)
+    T* get(){
+        return mCurrent++;
+    }
+
+    T* createNode(const T& data = T()){
+        T* temp = &mBuff[1];
+        int i = 0;
+        while (temp != &mBuff[mSize] && temp != nullptr)
+        {
+            if ((temp->mNext == nullptr && temp->mPrev == nullptr))
             {
-                current = &mBuff[i];
-                return current;
+                *temp = data;
+                mCurrent = temp;
+                return temp;
             }
+            temp = &mBuff[i++];
         }
-        current++;
-        if (current > &mBuff[mSize-1]) current = &mBuff[1];
-        return current;
-    }
-
-    void pop(T *pointer){
-        size_t i=0;
-        for (; pointer != &mBuff[i];){
-            i++;
-        }
-        mBuff[i].~T();
-    }
-
-    T* getPlaceForFictitious(){
-        return &mBuff[0];
-    }
-
-    [[nodiscard]] size_t getSize() const{
-        return mSize-1;
-    }
-
-    const T& getNode(int i) const {
-        return mBuff[i];
+        mCurrent++;
+        if (mCurrent >= &mBuff[mSize])
+            mCurrent = &mBuff[1];
+        T* before = mCurrent->mPrev;
+        T* after = mCurrent->mNext;
+        before->mNext = after;
+        after->mPrev = before;
+        *mCurrent = data;
+        return mCurrent;
     }
 
     void showbuff()const {
@@ -57,6 +51,12 @@ public:
             std::cout << "mBuff[i] = " << mBuff[i].mData  << "\t\taddr = " << &mBuff[i] << "\t\tmNext = " << mBuff[i].mNext
                       << "\t\tmPrev = " << mBuff[i].mPrev << std::endl;
     }
+
+    buffer<T, maxSize>& operator = (const buffer &other){
+        mBuff = other.mBuff;
+        mCurrent = other.mCurrent;
+    }
+
 };
 
 

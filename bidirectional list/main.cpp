@@ -21,8 +21,19 @@ public:
 };
 
 int main() {
-    list<int> moveList;
-    moveList = list<int>(3,6);
-    std::cout << moveList.front() << ' ' << moveList.back() << std::endl;
+
+    list<int, 10> l;
+    for (int i=0; i<5; i++){
+        l.push_front(i+1);
+        l.push_back(-1*(1+i));
+    }
+    l.show();
+
+    for (int i=0; i<3; ++i){
+        l.push_front((i+1)*111);
+        l.push_back(-1*111*(i+1));
+    }
+    l.show();
+
     return 0;
 }
