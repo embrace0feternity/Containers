@@ -23,17 +23,22 @@ public:
 int main() {
 
     list<int, 10> l;
-    for (int i=0; i<5; i++){
+
+    for (int i=0; i<10; ++i)
         l.push_front(i+1);
-        l.push_back(-1*(1+i));
-    }
+    for (const auto &i : l)
+        std::cout << i << ' ';
+    std::cout << std::endl;
     l.show();
 
-    for (int i=0; i<3; ++i){
-        l.push_front((i+1)*111);
-        l.push_back(-1*111*(i+1));
-    }
+    for (int i=0; i<10; ++i)
+        l.push_front(100*(i+1));
+    for (const auto &i : l)
+        std::cout << i << ' ';
+    std::cout << std::endl;
     l.show();
+
+
 
     return 0;
 }

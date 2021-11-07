@@ -111,27 +111,32 @@ public:
     }
 
     void push_front(const T& data) {
-        Node *temp = mBuff.createNode(Node(data));
-        temp->mNext = mHead;
-        temp->mPrev = nullptr;
-        mHead->mPrev = temp;
-        mHead = temp;
-        if (mSize <= maxSize)
+        Node *temp = mBuff.push_front(Node(data));
+        if (mSize < maxSize) {
+            temp->mNext = mHead;
+            temp->mPrev = mTail;
+            mHead->mPrev = temp;
+            mHead = temp;
+            mTail->mNext = mHead;
             ++mSize;
-
+        }
+        else
+            mHead = temp;
     }
 
     void push_back(const T& data) {
         if (isEmpty()) push_front(data);
         else
         {
-            Node *temp = mBuff.createNode(Node(data));
-               temp->mNext = mTail;
-               temp->mPrev = mTail->mPrev;
-               mTail->mPrev->mNext = temp;
-               mTail->mPrev = temp;
-               if (mSize < maxSize)
-                   ++mSize;
+            if (mSize < maxSize)
+                ++mSize;
+            else
+                mHead = mHead->mNext;
+            Node *temp = mBuff.push_back(Node(data));
+            temp->mNext = mTail;
+            temp->mPrev = mTail->mPrev;
+            mTail->mPrev->mNext = temp;
+            mTail->mPrev = temp;
          }
     }
 
@@ -162,14 +167,18 @@ public:
         }
     }
 
-    void insert(iterator& pos, const value_type &data){
+    void insert(iterator && pos, const T data){
+        insert(pos, data);
+    }
+
+    void insert(iterator& pos, const T &data){
         iterator headIterator(mHead);
         if (pos == headIterator) push_front(data);
         else
         if (pos == iterator(mTail)) push_back(data);
         else
         {
-            Node *temp = new(mBuff->push()) Node(data);
+            Node *temp = mBuff.push(Node(data));
             Node *before = mHead, *after;
             --pos;
             for (; headIterator != pos; before = before->mNext);
@@ -273,14 +282,6 @@ public:
     }
 
     void show()const{
-
-        Node *temp = mHead;
-        while(temp->mNext)
-        {
-            std::cout << temp->mData << std::endl;
-            temp = temp->mNext;
-        }
-
         mBuff.showbuff();
     }
 };
