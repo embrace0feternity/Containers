@@ -105,8 +105,6 @@ TEST_F(listTests, MethodPop){
 
 
 
-
-
 TEST_F(listTests, AssignmentOperator){
     list<person> assignmentList;
     assignmentList = mInitList;
@@ -118,13 +116,6 @@ TEST_F(listTests, AssignmentOperator){
     }
 }
 
-
-TEST_F(listTests, MoveOperator){
-    list<int> moveList;
-    moveList = list<int>(3,6);
-    ASSERT_EQ(moveList.size(), 3);
-    ASSERT_EQ(moveList.front(), moveList.back());
-}
 
 
 

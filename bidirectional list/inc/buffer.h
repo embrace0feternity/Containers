@@ -8,93 +8,116 @@
 #include <memory>
 #include "list.h"
 #include <array>
-#include <iostream>
 
-template <typename T, size_t maxSize>
-class buffer{
-private:
-    inline static constexpr size_t mSize = maxSize;
-    std::array<T, mSize> mBuff;
-    T* mBot = &mBuff[0];
-    T* mTop = &mBuff[mSize-1];
-public:
 
-    buffer() = default;
+namespace customList {
 
-    T* get(){
-        return mBot;
-    }
+    template<typename T, size_t maxSize>
+    class buffer {
+    private:
+        inline static constexpr size_t mSize = maxSize+1;
+        inline static int mBotCount = 1;
+        std::array<T, mSize> mBuff;
+        T *mBot = &mBuff[0];
+        T *mNextAfterPrevHead;
+        T *mBeforePrevHead;
 
-    T* push_front(T&& data){
-        int i = 0;
-        T* current = &mBuff[1];
-        while (current != &mBuff[mSize] && current != nullptr)
-        {
-            if ((current->mNext == nullptr && current->mPrev == nullptr))
+        T* rewrite(const T &data) {
+            T *before;
+            T *temp;
+            T *test;
+            if (mBotCount == 1)
             {
-                *current = data;
-                return current;
+                mBot = mBuff[0].mNext;
+                mNextAfterPrevHead = mBot->mNext;
             }
-            current = &mBuff[i++];
-        }
-
-        T* after;
-        T* before;
-        mBot = mBot->mNext;
-        after = mBot->mNext;
-        before = mBot->mPrev;
-
-        *mBot = data;
-        if (before != &mBuff[0])
-        {
-            before->mNext = after;
-            after->mPrev = before;
-            mBot->mNext = before;
-            before->mPrev = mBot;
-        }
-        else
-            mBot->mNext = after;
-        mBot->mPrev = &mBuff[0];
-        mBuff[0].mNext = mBot;
-
-
-
-        std::cout << "Before = " << before->mData << "\t\tAfter = " << after->mData << std::endl;
-        return mBot;
-    }
-    // after = 8, before = 100;
-    T* push_back(const T& data){
-        int i = 0;
-        T* current = mTop;
-        while (current != &mBuff[mSize] && current != nullptr)
-        {
-            if ((current->mNext == nullptr && current->mPrev == nullptr))
+            else
             {
-                *current = data;
-                return current;
+                before = mBeforePrevHead;
+                before->mPrev = mBot;
+                before->mNext = mNextAfterPrevHead->mNext;
+                temp = mNextAfterPrevHead->mNext;
             }
-            current = &mBuff[i++];
+
+            *mBot = data;       // manipulations with a new Head in the list    Create new Node in array
+            mBuff[0].mNext = mBot;      // link to fictitious
+            mBot->mPrev = &mBuff[0];
+            if (mBotCount != 1)
+            {
+                mBot->mNext = before;
+                test = mBot;
+                for (int i = 0; i < mBotCount - 1; ++i)
+                    test = test->mNext;
+                mNextAfterPrevHead = temp;
+                test->mNext = mNextAfterPrevHead;
+                mNextAfterPrevHead->mPrev = test;
+
+            }
+            else
+            {
+                mBot->mNext = mNextAfterPrevHead;
+            }
+            ++mBotCount;
+            mBeforePrevHead = mBot;
+
+            mBot = mNextAfterPrevHead;
+            return mBeforePrevHead;
         }
-        current = &mBuff[0];
 
-        T* temp = current->mNext;
+    public:
 
-        current->mNext = temp->mNext;
-        temp->mNext->mPrev = current;
+        buffer() = default;
 
-        current = temp;
-        *current = data;
-        return current;
-    }
+        T* getFictitious() {
+            return mBot; // test
+        }
 
-    void showbuff()const {
-        std::cout << "----------------------------\n";
-        for (size_t i = 0; i<mSize; ++i)
-            std::cout << "mBuff[i] = " << mBuff[i].mData  << "\t\taddr = " << &mBuff[i] << "\t\tmNext = " << mBuff[i].mNext
-                      << "\t\tmPrev = " << mBuff[i].mPrev << std::endl;
-    }
+        T* push(T &&data) {
+            int i = 0;
+            T *current = &mBuff[1];
+            while (current != &mBuff[mSize] && current != nullptr)
+            {
+                if ((current->mNext == nullptr && current->mPrev == nullptr))
+                {
+                    *current = data;
+                    return current;
+                }
+                current = &mBuff[i++];
+            }
+            std::cout << mBotCount << std::endl;
+            return rewrite(data);
 
-};
+        }
+
+        T* push_back(T &&data) {
+            *mBot = data;
+            return mBot;        /* bullshit */
+        }
+
+        void pop(T *temp) {
+            T *current = &mBuff[1];
+            while (true)
+            {
+                if (current->mNext == temp->mNext)
+                {
+                    current->~T();
+                    break;
+                }
+                current = current->mNext;
+            }
+        }
+
+        buffer<T, maxSize>& operator = (const buffer &other){
+            // copy pointers!
+            for (size_t i = 0; i<mSize; ++i)
+            {
+                mBuff[i] = other.mBuff[i];
+            }
+            return *this;
+        }
+
+    };
 
 
+}
 #endif //BIDIRECTIONAL_LIST_BUFFER_H
