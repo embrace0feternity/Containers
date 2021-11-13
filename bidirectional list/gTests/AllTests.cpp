@@ -37,7 +37,8 @@ TEST_F(listTests, CopyConstructor) {
     ASSERT_EQ(copyList.size(), mInitList.size());
     auto i2 = mInitList.begin();
     auto i1 = copyList.begin();
-    for (; i1 != copyList.end(); ++i1, ++i2) {
+    for (; i1 != copyList.end(); ++i1, ++i2)
+    {
         ASSERT_EQ((*i1).getName(), (*i2).getName());
         ASSERT_EQ((*i1).getAge(), (*i2).getAge());
     }
@@ -58,7 +59,7 @@ TEST_F(listTests, Iterator){
     auto beginIterator = mInitList.begin();
     auto endIterator = mInitList.end();
     for (int i = 0; beginIterator != endIterator; ++beginIterator, ++i)
-        ASSERT_EQ((*beginIterator).getName(), mDeq[i]);
+    ASSERT_EQ((*beginIterator).getName(), mDeq[i]);
 }
 
 TEST_F(listTests, Reverse_iterator){
@@ -66,18 +67,19 @@ TEST_F(listTests, Reverse_iterator){
     auto rbeginIterator = mInitList.rbegin();
     auto rendIterator = mInitList.rend();
     for (int i = 0; rbeginIterator != rendIterator; ++rbeginIterator, ++i)
-        ASSERT_EQ((*rbeginIterator).getName(), mDeq[i]);
+    ASSERT_EQ((*rbeginIterator).getName(), mDeq[i]);
 }
 
 TEST_F(listTests, MethodClear){
     ASSERT_EQ(mInitList.size(), 3);
     mInitList.clear();
     ASSERT_EQ(mInitList.size(), 0);
-    //optional
+//optional
 }
 
 TEST_F(listTests, MethodPush){
-    for (int i=0; i<5; ++i){
+    for (int i=0; i<5; ++i)
+    {
         mDefaultList.push_back(i+1);
         mDefaultList.push_front(-1*(i+1));
     }
@@ -85,7 +87,7 @@ TEST_F(listTests, MethodPush){
     ASSERT_EQ(mDefaultList.front(), -5);
     ASSERT_EQ(mDefaultList.back(), 5);
 
-    //  rewrite buffer
+//  rewrite buffer
 
     mDefaultList.push_front(100);
     ASSERT_EQ(mDefaultList.size(), 1);
@@ -106,14 +108,14 @@ TEST_F(listTests, MethodPop){
 
 
 TEST_F(listTests, AssignmentOperator){
-    list<person> assignmentList;
-    assignmentList = mInitList;
-    auto i2 = mInitList.begin();
-    auto i1 = assignmentList.begin();
-    for (; i1 != assignmentList.end(); ++i1, ++i2) {
-        ASSERT_EQ((*i1).getName(), (*i2).getName());
-        ASSERT_EQ((*i1).getAge(), (*i2).getAge());
-    }
+list<person> assignmentList;
+assignmentList = mInitList;
+auto i2 = mInitList.begin();
+auto i1 = assignmentList.begin();
+for (; i1 != assignmentList.end(); ++i1, ++i2) {
+ASSERT_EQ((*i1).getName(), (*i2).getName());
+ASSERT_EQ((*i1).getAge(), (*i2).getAge());
+}
 }
 
 

@@ -27,9 +27,9 @@ namespace customList {
         using size_type = size_t;
         using difference_type = std::ptrdiff_t;
     private:
-        struct Node;
+        class Node;
 
-        buffer<Node, maxSize + 1> mBuff;
+        buffer<Node, maxSize> mBuff;
         Node *mHead = nullptr;
         Node *mTail = nullptr;
         size_type mSize = 0;
@@ -57,7 +57,6 @@ namespace customList {
 
         // Deep copy constructor. It copies every Node from the source to the target list
         list(const list &other) noexcept: list() {
-            mBuff = other.mBuff;
             for (size_type i = 0; i<other.mSize; ++i)
             {
                 Node temp = other.mBuff.getNode(i+1);
@@ -125,22 +124,45 @@ namespace customList {
                 mHead = temp;
                 mTail->mNext = mHead;
                 ++mSize;
-            } else
-                mHead = temp;
+            }
+            else
+            {
+                Node *changedPointer = mHead;
+                int count = mBuff.getRewriteCount();
+                for (int i = 0; i<count; ++i)
+                {
+                    auto tempData = temp->mData;
+                    temp->mData = changedPointer->mData;
+                    changedPointer->mData = tempData;
+                    changedPointer = changedPointer->mNext;
+                }
+            }
         }
 
         void push_back(const T &data) {
             if (isEmpty()) push_front(data);
             else {
+                Node *temp = mBuff.push(Node(data), 1);
                 if (mSize < maxSize)
+                {
                     ++mSize;
+                    temp->mNext = mTail;
+                    temp->mPrev = mTail->mPrev;
+                    mTail->mPrev->mNext = temp;
+                    mTail->mPrev = temp;
+                }
                 else
-                    mHead = mHead->mNext;
-                Node *temp = mBuff.push(Node(data));   // doesn't work yet!
-                temp->mNext = mTail;
-                temp->mPrev = mTail->mPrev;
-                mTail->mPrev->mNext = temp;
-                mTail->mPrev = temp;
+                {
+                    Node *changedPointer = mTail->mPrev;
+                    int count = mBuff.getRewriteCount(1);
+                    for (int i = 0; i<count; ++i)
+                    {
+                        auto tempData = temp->mData;
+                        temp->mData = changedPointer->mData;
+                        changedPointer->mData = tempData;
+                        changedPointer = changedPointer->mPrev;
+                    }
+                }
             }
         }
 
@@ -261,7 +283,8 @@ namespace customList {
 
 
     template<typename T, size_t maxSize>
-    struct list<T, maxSize>::Node {
+    class list<T, maxSize>::Node {
+    public:
         T mData;
         Node *mNext = nullptr;
         Node *mPrev = nullptr;
@@ -279,6 +302,10 @@ namespace customList {
         // this method return a value of Node and is used in copy constructor and operator =
         T getData() const {
             return mData;
+        }
+
+        void setData(const T& data){
+            mData = data;
         }
 
         Node& operator = (const Node& other) {

@@ -8,7 +8,7 @@
 #include <memory>
 #include "list.h"
 #include <array>
-
+#include <typeinfo>
 
 namespace customList {
 
@@ -16,52 +16,32 @@ namespace customList {
     class buffer {
     private:
         inline static constexpr size_t mSize = maxSize+1;
-        inline static int mBotCount = 1;
+        inline static int rewriteCountFront = 0;
+        inline static int rewriteCountBack = 0;
         std::array<T, mSize> mBuff;
-        T *mBot = &mBuff[0];
-        T *mNextAfterPrevHead;
-        T *mBeforePrevHead;
+        T *mFront = &mBuff[0];
+        T *mBack = &mBuff[0];
 
-        T* rewrite(const T &data) {
-            T *before;
-            T *temp;
-            T *test;
-            if (mBotCount == 1)
+        T* rewrite(T &node, int &key) {
+            T* tempPointer;
+            if (key == 0) // push_front();
             {
-                mBot = mBuff[0].mNext;
-                mNextAfterPrevHead = mBot->mNext;
+                if (mFront->mNext == &mBuff[0]) mFront = &mBuff[0];
+                if (mFront != mBuff[0].mNext)
+                    rewriteCountFront++;
+                tempPointer = mFront->mNext;
+                mFront = mFront->mNext;
             }
             else
             {
-                before = mBeforePrevHead;
-                before->mPrev = mBot;
-                before->mNext = mNextAfterPrevHead->mNext;
-                temp = mNextAfterPrevHead->mNext;
+                if (mBack->mPrev == &mBuff[0]) mBack = &mBuff[0];
+                if (mBack != mBuff[0].mPrev)
+                    rewriteCountBack++;
+                tempPointer = mBack->mPrev;
+                mBack = mBack->mPrev;
             }
-
-            *mBot = data;       // manipulations with a new Head in the list    Create new Node in array
-            mBuff[0].mNext = mBot;      // link to fictitious
-            mBot->mPrev = &mBuff[0];
-            if (mBotCount != 1)
-            {
-                mBot->mNext = before;
-                test = mBot;
-                for (int i = 0; i < mBotCount - 1; ++i)
-                    test = test->mNext;
-                mNextAfterPrevHead = temp;
-                test->mNext = mNextAfterPrevHead;
-                mNextAfterPrevHead->mPrev = test;
-
-            }
-            else
-            {
-                mBot->mNext = mNextAfterPrevHead;
-            }
-            ++mBotCount;
-            mBeforePrevHead = mBot;
-
-            mBot = mNextAfterPrevHead;
-            return mBeforePrevHead;
+            tempPointer->setData(node.getData());
+            return tempPointer;
         }
 
     public:
@@ -69,29 +49,25 @@ namespace customList {
         buffer() = default;
 
         T* getFictitious() {
-            return mBot; // test
+            return &mBuff[0]; // test
         }
 
-        T* push(T &&data) {
+        T* push(T &&node, int &&key = 0) {
             int i = 0;
-            T *current = &mBuff[1];
-            while (current != &mBuff[mSize] && current != nullptr)
+            T* tempPointer = &mBuff[1];
+            while (tempPointer != &mBuff[mSize] && tempPointer != nullptr)
             {
-                if ((current->mNext == nullptr && current->mPrev == nullptr))
+                if ((tempPointer->mNext == nullptr && tempPointer->mPrev == nullptr))
                 {
-                    *current = data;
-                    return current;
+                    *tempPointer = node;
+                    return tempPointer;
                 }
-                current = &mBuff[i++];
+                tempPointer = &mBuff[i++];
             }
-            std::cout << mBotCount << std::endl;
-            return rewrite(data);
-
-        }
-
-        T* push_back(T &&data) {
-            *mBot = data;
-            return mBot;        /* bullshit */
+            if (rewriteCountBack == mSize-2) rewriteCountBack = 0;
+            if (rewriteCountFront == mSize-2) rewriteCountFront = 0;
+            std::cout << " " << std::endl;
+            return rewrite(node, key);
         }
 
         void pop(T *temp) {
@@ -107,15 +83,10 @@ namespace customList {
             }
         }
 
-        buffer<T, maxSize>& operator = (const buffer &other){
-            // copy pointers!
-            for (size_t i = 0; i<mSize; ++i)
-            {
-                mBuff[i] = other.mBuff[i];
-            }
-            return *this;
+        [[nodiscard]] int getRewriteCount(int key = 0) const {
+            if (key == 0) return rewriteCountFront;
+            return rewriteCountBack;
         }
-
     };
 
 

@@ -4,22 +4,20 @@
 int main() {
 
     customList::list<int, 10> l;
-    customList::list<int, 10> l2;
-    for (int i=0; i<4; i++) l2.push_front(i+1);
-    l = l2;
-
+    for (int i=0; i<5; i++)
+    {
+        l.push_front(100*(i+1));
+        l.push_back(i+1);
+    }
     for (const auto &i : l)
         std::cout << i << ' ';
     std::cout << std::endl;
 
-    l.pop_front();
-    std::cout << "\ndelete first\n";
-
-    auto j = l.begin();
-    j++;
-    l.insert(j, 9);
-    std::cout << "insert second\n";
-
+    for (int i=0; i<5; i++)
+    {
+        l.push_front(1000*(i+1));
+        l.push_back(30*(i+1));
+    }
     for (const auto &i : l)
         std::cout << i << ' ';
     std::cout << std::endl;
