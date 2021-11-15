@@ -34,13 +34,6 @@ namespace customList {
         Node *mTail = nullptr;
         size_type mSize = 0;
 
-        // This function is using into move constructor and move operator
-        friend void swap(list<T, maxSize> &first, list<T, maxSize> &second) noexcept {
-            std::swap(first.mHead, second.mHead);
-            std::swap(first.mTail, second.mTail);
-            std::swap(first.mSize, second.mSize);
-        }
-
     public:
 /*	constructor ------------------------------------------------------------------------------------- */
         list() noexcept {
@@ -50,25 +43,17 @@ namespace customList {
 
         // It also an analog of the STL initializer_list constructor
         list(const std::initializer_list<T> &init_list) : list() {
-            for (const auto &i: init_list) {
+            for (const auto &i: init_list)
                 push_back(i);
-            }
         }
 
         // Deep copy constructor. It copies every Node from the source to the target list
         list(const list &other) noexcept: list() {
-            for (size_type i = 0; i<other.mSize; ++i)
-            {
-                Node temp = other.mBuff.getNode(i+1);
-                push_front(temp.getData());
-            }
+            mBuff = other.mBuff;
+            mSize = other.mSize;
+            mHead = other.mHead;
+            mTail = other.mTail;
 
-        }
-
-        // Move semantic constructor that uses my swap function
-        list(list &&other) noexcept: list() {
-            swap(*this, other);
-            mBuff = std::move(other.mBuff);
         }
 
 /*	destructor -------------------------------------------------------------------------------------- */
@@ -112,12 +97,14 @@ namespace customList {
 
 /*	modifiers --------------------------------------------------------------------------------------- */
         void clear() {
-            while (!isEmpty()) pop_back();
+            while (!isEmpty())
+                pop_back();
         }
 
         void push_front(const T &data) {
             Node *temp = mBuff.push(Node(data));
-            if (mSize < maxSize) {
+            if (mSize < maxSize)
+            {
                 temp->mNext = mHead;
                 temp->mPrev = mTail;
                 mHead->mPrev = temp;
@@ -140,7 +127,8 @@ namespace customList {
         }
 
         void push_back(const T &data) {
-            if (isEmpty()) push_front(data);
+            if (isEmpty())
+                push_front(data);
             else {
                 Node *temp = mBuff.push(Node(data), 1);
                 if (mSize < maxSize)
@@ -168,116 +156,170 @@ namespace customList {
 
 
         void pop_front() {
-            if (!isEmpty()) {
+            if (!isEmpty())
+            {
                 Node *temp = mHead;
                 mHead = temp->mNext;
-                mHead->mPrev = nullptr;
+                mHead->mPrev = mTail;
                 mBuff.pop(temp);
-                temp->mPrev = mTail;
+                mTail->mNext = mHead;
                 --mSize;
 
             }
         }
 
         void pop_back() {
-            if (!isEmpty()) {
-                if (mTail->mPrev == mHead) pop_front();
-                else {
+            if (!isEmpty())
+            {
+                if (mTail->mPrev == mHead)
+                    pop_front();
+                else
+                {
                     Node *temp = mTail->mPrev;
-                    mTail->mPrev = temp->mPrev;
-                    temp->mPrev->mNext = mTail;
+                    Node *before = temp->mPrev;
                     mBuff.pop(temp);
+                    mTail->mPrev = before;
+                    before->mNext = mTail;
                     --mSize;
                 }
             }
         }
 
-        void insert(iterator &&pos, const T data) {
+        void insert(iterator &&pos, const T &data) {
             insert(pos, data);
         }
 
         void insert(iterator &pos, const T &data) {
             iterator headIterator(mHead);
-            if (pos == headIterator) push_front(data);
-            else if (pos == iterator(mTail)) push_back(data);
-            else {
-                Node *temp = mBuff.push(Node(data));
-                Node *before = mHead, *after;
-                --pos;
-                for (; headIterator != pos; before = before->mNext);
-                after = before->mNext;
-                temp->mNext = after;
-                temp->mPrev = before;
-                after->mPrev = temp;
-                before->mNext = temp;
-                ++mSize;
-            }
+            if (pos == headIterator)
+                push_front(data);
+            else
+                if (pos == iterator(mTail))
+                    push_back(data);
+                else
+                {
+                    Node *temp;
+                    Node *before = mHead, *after;
+                    --pos;
+                    if (mSize < maxSize)
+                    {
+                        temp = mBuff.push(Node(data));
+                        for (; headIterator != pos; before = before->mNext, ++headIterator);
+                        after = before->mNext;
+                        temp->mNext = after;
+                        temp->mPrev = before;
+                        after->mPrev = temp;
+                        before->mNext = temp;
+                        ++mSize;
+                    }
+                    else
+                    {
+                        temp = mBuff.insert(data);
+                        mTail->mPrev = temp->mPrev;
+                        mTail->mPrev->mNext = mTail;
+                        for (; headIterator != pos; before = before->mNext, ++headIterator);
+                        after = before->mNext;
+                        temp->mNext = after;
+                        temp->mPrev = before;
+                        after->mPrev = temp;
+                        before->mNext = temp;
+                    }
+                    ++pos;
+                }
+        }
+
+        void erase(iterator &&pos) {
+            erase(pos);
         }
 
         // Delete 1 Node from list
         void erase(iterator &pos) {
             iterator headIterator(mHead);
-            if (pos == headIterator) pop_front();
-            else if (pos == iterator(mTail)) pop_back();
-            else {
-                Node *before = mHead, *after;
-                --pos;
-                for (; headIterator != pos; before = before->mNext);
-                Node *temp = before->mNext;
-                after = temp->mNext;
-                before->mNext = temp->mNext;
-                after->mPrev = temp->mPrev;
-                mBuff->pop(temp);
-                --mSize;
-            }
+            if (pos == headIterator)
+                pop_front();
+            else
+                if (pos == iterator(mTail))
+                    pop_back();
+                else
+                {
+                    Node *before = mHead, *after;
+                    --pos;
+                    for (; headIterator != pos; before = before->mNext, ++headIterator);
+                    Node *temp = before->mNext;
+                    after = temp->mNext;
+                    mBuff.pop(temp);
+                    before->mNext = after;
+                    after->mPrev = before;
+                    --mSize;
+                    ++pos;
+                }
+        }
+
+        void erase(iterator &&first, iterator &&second){
+            erase(first, second);
         }
 
         // Delete a range [first, second] of Node from list
         void erase(iterator &first, iterator &second) {
             iterator headIterator(mHead);
             iterator tailIterator(mTail);
-            if (first == second) erase(first);
-            else if (first == headIterator) {
-                while (first != second) {
-                    ++first;
-                    pop_front();
-                }
-            } else if (second == tailIterator) {
-                --second;
-                while (first != second) {
+            if (first == second)
+                erase(first);
+            else
+                if (first == headIterator)
+                {
                     --second;
-                    pop_back();
+                    while (first != second)
+                    {
+                        ++first;
+                        pop_front();
+                    }
+                    pop_front();
+                    ++second;
                 }
-                pop_back();
-            } else {
-                while (first != second) {
-                    Node *before = mHead, *after;
-                    --first;
-                    for (; headIterator != first; before = before->mNext);
-                    Node *temp = before->mNext;
-                    after = temp->mNext;
-                    before->mNext = temp->mNext;
-                    after->mPrev = temp->mPrev;
-                    mBuff->pop(temp);
-                    --mSize;
-                    ++first;
-                }
-            }
+                else
+                    if (second == tailIterator)
+                    {
+                        --second;
+                        while (first != second)
+                        {
+                            --second;
+                            pop_back();
+                        }
+                        pop_back();
+                    }
+                    else
+                        while (first != second)
+                        {
+                            Node *before = mHead, *after;
+                            --first;
+                            for (; headIterator != first; before = before->mNext);
+                            Node *temp = before->mNext;
+                            after = temp->mNext;
+                            mBuff.pop(temp);
+                            before->mNext = after;
+                            after->mPrev = before;
+                            --mSize;
+                            ++first;
+                        }
+
         }
 
 /*	operator ---------------------------------------------------------------------------------------- */
         list<T, maxSize> &operator=(const list &other) {
-            if (this == &other) return *this;
-            while (mHead->mNext != nullptr) {
+            if (this == &other)
+                return *this;
+
+            while (mHead->mNext != nullptr)
                 pop_front();
-            }
-            mBuff = std::move(other.mBuff);
+
+            mBuff = other.mBuff;
             mHead = other.mHead;
             mTail = other.mTail;
             mSize = other.mSize;
+
             return *this;
         }
-
 
     };
 
@@ -308,13 +350,6 @@ namespace customList {
             mData = data;
         }
 
-        Node& operator = (const Node& other) {
-            mData = other.mData;
-            mNext = other.mNext;
-            mPrev = other.mPrev;
-            return *this;
-        }
-
     };
 
     template<typename T, size_t maxSize>
@@ -339,13 +374,17 @@ namespace customList {
         }
 
         iterator &operator=(const iterator &other) {
-            if (this == &other) return *this;
+            if (this == &other)
+                return *this;
+
             mIter = other.mIter;
             return *this;
         }
 
         iterator &operator=(iterator &&other) noexcept {
-            if (other.mIter == mIter) return *this;
+            if (other.mIter == mIter)
+                return *this;
+
             mIter = other.mIter;
             other.mIter = nullptr;
             return *this;
@@ -364,24 +403,32 @@ namespace customList {
         }
 
         iterator &operator--() { // prefix
-            if (mIter->mPrev != nullptr) mIter = mIter->mPrev;
+            if (mIter->mPrev != nullptr)
+                mIter = mIter->mPrev;
+
             return *this;
         }
 
-        const iterator operator--(int) { // postfix
-            const iterator temp = *this;
-            if (mIter->mPrev != nullptr) mIter = mIter->mPrev;
+        iterator operator--(int) { // postfix
+            iterator temp = *this;
+            if (mIter->mPrev != nullptr)
+                mIter = mIter->mPrev;
+
             return temp;
         }
 
         iterator &operator++() { // prefix
-            if (mIter->mNext != nullptr) mIter = mIter->mNext;
+            if (mIter->mNext != nullptr)
+                mIter = mIter->mNext;
+
             return *this;
         }
 
         iterator operator++(int) { // postfix
             iterator temp = *this;
-            if (mIter->mNext != nullptr) mIter = mIter->mNext;
+            if (mIter->mNext != nullptr)
+                mIter = mIter->mNext;
+
             return temp;
         }
     };

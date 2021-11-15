@@ -10,8 +10,8 @@
 
 class listTests : public ::testing::Test {
 protected:
-    list<int> mDefaultList;
-    list<person> mInitList = {person("Vlad", 20), person("Egor", 21), person("Masha", 20)};
+    customList::list<int, 5> mDefaultList;
+    customList::list<person, 3> mInitList = {person("Vlad", 20), person("Egor", 21), person("Masha", 20)};
     std::deque<std::string> mDeq = {"Vlad", "Egor", "Masha"};
 };
 
@@ -21,19 +21,8 @@ TEST_F(listTests, test)
     ASSERT_TRUE(t);
 }
 
-
-TEST_F(listTests, SeveralElemConstructor){
-    list<int> severalElemList(3, 6);
-    while (!severalElemList.isEmpty())
-    {
-        ASSERT_EQ(severalElemList.front(), 6);
-        severalElemList.pop_front();
-    }
-}
-
-
 TEST_F(listTests, CopyConstructor) {
-    list<person> copyList = mInitList;
+    customList::list<person, 3> copyList = mInitList;
     ASSERT_EQ(copyList.size(), mInitList.size());
     auto i2 = mInitList.begin();
     auto i1 = copyList.begin();
@@ -42,12 +31,6 @@ TEST_F(listTests, CopyConstructor) {
         ASSERT_EQ((*i1).getName(), (*i2).getName());
         ASSERT_EQ((*i1).getAge(), (*i2).getAge());
     }
-}
-
-TEST_F(listTests, MoveConstructor){
-    list<int> moveList(list<int>(3,6));
-    ASSERT_EQ(moveList.size(), 3);
-    ASSERT_EQ(moveList.front(), moveList.back());
 }
 
 TEST_F(listTests, MethodIsEmpty){
@@ -74,48 +57,93 @@ TEST_F(listTests, MethodClear){
     ASSERT_EQ(mInitList.size(), 3);
     mInitList.clear();
     ASSERT_EQ(mInitList.size(), 0);
-//optional
+    ASSERT_NE(mInitList.front().getName(), "Vlad");
 }
 
 TEST_F(listTests, MethodPush){
-    for (int i=0; i<5; ++i)
+    for (int i=0; i<2; ++i)
     {
         mDefaultList.push_back(i+1);
         mDefaultList.push_front(-1*(i+1));
     }
-    ASSERT_EQ(mDefaultList.size(), 10);
-    ASSERT_EQ(mDefaultList.front(), -5);
-    ASSERT_EQ(mDefaultList.back(), 5);
-
-//  rewrite buffer
-
-    mDefaultList.push_front(100);
-    ASSERT_EQ(mDefaultList.size(), 1);
-    ASSERT_EQ(mDefaultList.front(), mDefaultList.back());
+    ASSERT_EQ(mDefaultList.front(), -2);
+    ASSERT_EQ(mDefaultList.back(), 2);
+    ASSERT_EQ(mDefaultList.size(), 4);
 }
 
-TEST_F(listTests, MethodPop){
-    mInitList.pop_front();
-    ASSERT_EQ(mInitList.size(), 2);
+TEST_F(listTests, rewriteBuffer){
+    mInitList.push_back(person("Sonya", 20));
+    mInitList.push_front(person("Katya", 20));
+    mDeq.at(0) = "Katya";       mDeq.at(2) = "Sonya";
+
     auto beginIterator = mInitList.begin();
     auto endIterator = mInitList.end();
-    for (int i = 1; beginIterator != endIterator; ++beginIterator, ++i)
+
+    for (int i = 0; beginIterator != endIterator; ++beginIterator, ++i)
         ASSERT_EQ((*beginIterator).getName(), mDeq[i]);
 }
 
+TEST_F(listTests, MethodPop){
+    mInitList.pop_back();
+    ASSERT_EQ(mInitList.size(), 2);
+    ASSERT_EQ(mInitList.back().getName(), "Egor");
 
+    mInitList.pop_front();
+    ASSERT_EQ(mInitList.size(), 1);
+    ASSERT_EQ(mInitList.front().getName(), "Egor");
+}
 
+TEST_F(listTests, MethodInsert){
+    auto beginIterator = mDefaultList.begin();
+
+    mDefaultList.insert(beginIterator,1);
+    ASSERT_EQ(mDefaultList.size(), 1);
+    ASSERT_EQ(mDefaultList.front(), 1);
+
+    mDefaultList.insert(mDefaultList.end(),3);
+    ASSERT_EQ(mDefaultList.size(), 2);
+    ASSERT_EQ(mDefaultList.front(), 1);
+    ASSERT_EQ(mDefaultList.back(), 3);
+
+    beginIterator = mDefaultList.begin();
+    beginIterator++;
+    mDefaultList.insert(beginIterator,2);
+
+    for (size_t i = 0; !mDefaultList.isEmpty(); ++i)
+    {
+        ASSERT_EQ(mDefaultList.front(),i+1);
+        mDefaultList.pop_front();
+    }
+}
+
+TEST_F(listTests, MethodErase){
+    auto iter = mInitList.begin();
+    iter++;
+    mInitList.erase(iter);
+
+    ASSERT_EQ(mInitList.front().getName(), "Vlad");
+    mInitList.pop_front();
+
+    ASSERT_EQ(mInitList.front().getName(), "Masha");
+    mInitList.pop_front();
+}
+
+TEST_F(listTests, MethodErase2){ // range erase
+    mInitList.erase(mInitList.begin(), mInitList.end());
+    ASSERT_EQ(mInitList.size(), 0);
+}
 
 
 TEST_F(listTests, AssignmentOperator){
-list<person> assignmentList;
-assignmentList = mInitList;
-auto i2 = mInitList.begin();
-auto i1 = assignmentList.begin();
-for (; i1 != assignmentList.end(); ++i1, ++i2) {
-ASSERT_EQ((*i1).getName(), (*i2).getName());
-ASSERT_EQ((*i1).getAge(), (*i2).getAge());
-}
+    customList::list<person,3> assignmentList;
+    assignmentList = mInitList;
+    auto i2 = mInitList.begin();
+    auto i1 = assignmentList.begin();
+    for (; i1 != assignmentList.end(); ++i1, ++i2)
+    {
+        ASSERT_EQ((*i1).getName(), (*i2).getName());
+        ASSERT_EQ((*i1).getAge(), (*i2).getAge());
+    }
 }
 
 

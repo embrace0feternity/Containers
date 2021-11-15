@@ -13,8 +13,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="42d46bed-6cb3-4dd6-a3c6-efb4cfafe042" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/gTests/AllTests.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/gTests/AllTests.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/inc/buffer.h" beforeDir="false" afterPath="$PROJECT_DIR$/inc/buffer.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/inc/list.h" beforeDir="false" afterPath="$PROJECT_DIR$/inc/list.h" afterDir="false" />
@@ -39,6 +39,9 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
   </component>
+  <component name="ProblemsViewState">
+    <option name="selectedIndex" value="9" />
+  </component>
   <component name="ProjectId" id="20rnagJKFVwdTiIbWKh2SSKSAeS" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
@@ -53,6 +56,8 @@
     <property name="cf.first.check.clang-format" value="false" />
     <property name="cidr.known.project.marker" value="true" />
     <property name="cmake.loaded.for.project" value="true" />
+    <property name="run.code.analysis.last.selected.profile" value="pProject Default" />
+    <property name="settings.editor.selected.configurable" value="Errors" />
   </component>
   <component name="RunManager" selected="CMake Application.bidirectional_list">
     <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
@@ -89,22 +94,14 @@
       <option name="presentableId" value="Default" />
       <updated>1636811638901</updated>
       <workItem from="1636811640784" duration="9967000" />
-      <workItem from="1636821664674" duration="220000" />
+      <workItem from="1636821664674" duration="385000" />
+      <workItem from="1636900650728" duration="9733000" />
+      <workItem from="1636991451422" duration="7809000" />
+      <workItem from="1637012549431" duration="3490000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/main.cpp</url>
-          <line>24</line>
-          <option name="timeStamp" value="10" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>
