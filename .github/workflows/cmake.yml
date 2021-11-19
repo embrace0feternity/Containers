@@ -17,6 +17,7 @@ jobs:
     - name: Go to bidirectionallist folder
       run: |
         cd bidirectional\ list
+        cd bidirectional\ list
     
     - name: check
       run: ls -la
