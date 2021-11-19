@@ -15,7 +15,7 @@ jobs:
       run: ls -la
     
     - name: Git clone
-      run: actions/checkout@v2
+      run: actions/checkout@v1
 
     - name: Configure CMake
       run: |
