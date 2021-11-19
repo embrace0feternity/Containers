@@ -1,0 +1,38 @@
+name: CMake
+
+on:
+  push:
+    branches:
+      - master 
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+  
+    steps:
+      
+    - uses: actions/checkout@v2
+    
+    - name: check
+      run: ls -la
+
+    - name: Configure cmake
+      run: |
+        cd bidirectional\ list
+        mkdir build 
+        cd build
+        cmake ..
+        cmake --build .
+  test:
+    runs-on: ubuntu-latest
+    needs: [build]
+    
+    steps:
+    
+    - name: execute gTests
+      run: |
+        cd bidirectional\ list
+        cd build
+        cd gTests
+        ./gTests --gtest_shuffle --gtest_repeat=20 --gtest_break_on_failure 
