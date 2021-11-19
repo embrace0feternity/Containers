@@ -104,7 +104,7 @@ namespace customList {
             Node *temp;
             if (mSize < maxSize)
             {
-                temp = mBuff.push(Node(data));
+                temp = mBuff.push(Node(data), mTail);
                 temp->mNext = mHead;
                 temp->mPrev = mTail;
                 mHead->mPrev = temp;
@@ -114,13 +114,10 @@ namespace customList {
             }
             else
             {
-                temp = mBuff.rewrite_front(data);
-                temp->mNext = mHead;
-                mHead->mPrev = temp;
-                mTail->mPrev = temp->mPrev;
-                temp->mPrev->mNext = mTail;
+                temp = mBuff.rewrite(data);
+                mBuff.setFictitious(temp->mPrev);
+                mTail = temp->mPrev;
                 mHead = temp;
-                mTail->mNext = mHead;
             }
 
         }
@@ -132,7 +129,7 @@ namespace customList {
                 Node *temp;
                 if (mSize < maxSize)
                 {
-                    temp = mBuff.push(Node(data));
+                    temp = mBuff.push(Node(data), mTail);
                     temp->mNext = mTail;
                     temp->mPrev = mTail->mPrev;
                     mTail->mPrev->mNext = temp;
@@ -141,14 +138,10 @@ namespace customList {
                 }
                 else
                 {
-                    temp = mBuff.template rewrite_back(data);
-                    mTail->mPrev->mNext = temp;
-                    temp->mPrev = mTail->mPrev;
-                    temp->mNext->mPrev = mTail;
-                    mHead = temp->mNext;
-                    mTail->mNext = mHead;
-                    mTail->mPrev = temp;
-                    temp->mNext = mTail;
+                    temp = mBuff.rewrite(data);
+                    mBuff.setFictitious(temp->mNext);
+                    mTail = temp->mNext;
+                    mHead = mHead->mNext;
                 }
             }
         }
@@ -202,7 +195,7 @@ namespace customList {
                 --pos;
                 if (mSize < maxSize)
                 {
-                    temp = mBuff.push(Node(data));
+                    temp = mBuff.push(Node(data), mTail);
                     for (; headIterator != pos; before = before->mNext, ++headIterator);
                     after = before->mNext;
                     temp->mNext = after;
