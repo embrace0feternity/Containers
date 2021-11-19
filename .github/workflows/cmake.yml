@@ -16,7 +16,6 @@ jobs:
     
     - name: check
       run: ls -la
-    
 
     - name: Configure cmake
       run: |
@@ -26,4 +25,8 @@ jobs:
         cmake ..
         cmake --build .
     
-  
+    - name: execute gTests
+      run: |
+        cd bidirectional\ list
+        cd gTests
+        ./gTests --gtest_shuffle --gtest_repeat=20 --gtest_break_on_failure 
