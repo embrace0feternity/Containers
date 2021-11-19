@@ -13,9 +13,8 @@ jobs:
     steps:
     - name: show directory
       run: ls -la
-    
-    - name: Git clone
-      run: actions/checkout@v1
+      
+    - uses: actions/checkout@v2
 
     - name: Configure CMake
       run: |
