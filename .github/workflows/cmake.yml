@@ -11,17 +11,20 @@ jobs:
     
   
     steps:
-    - name: show directory
+    - name: Show current folder
       run: ls -la
       
     - uses: actions/checkout@v2
 
-    - name: Configure CMake
+    - name: Create build folder
       run: |
+        cd bidirectional\ list
         mkdir build
         cd build
+        
+    - name: Configure cmake
+      run: cmake ..
     
-    - name: show directory
-      run: ls -la
-  
+    - name: Build
+      run: cmkae --build .
   
