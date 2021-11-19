@@ -21,14 +21,8 @@ jobs:
     - name: Go to bidirectionallist folder
       run: |
         cd bidirectional\ list
-    
-    - name: check
-      run: ls 
-    
-    - name: mkdir build
-      run: mkdir build
-    
-    - name: check
-      run: ls -la 
+        ls
+        mkdir build
+        ls -la
     
   
