@@ -13,11 +13,14 @@ jobs:
     steps:
       
     - uses: actions/checkout@v2
+    
+    - name: check
+      run: ls -la
+    
 
     - name: Go to bidirectionallist folder
       run: |
-        cd bidirectional\ list
-        cd bidirectional\ list
+        cd bidirectional list
     
     - name: check
       run: ls -la
