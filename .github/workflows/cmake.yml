@@ -29,3 +29,5 @@ jobs:
       run: |
         cd bidirectional\ list
         ls -la
+        cd gTests
+        ls -la
