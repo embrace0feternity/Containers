@@ -28,4 +28,7 @@ jobs:
     - name: mkdir build
       run: mkdir build
     
+    - name: check
+      run: ls -la 
+    
   
