@@ -11,26 +11,14 @@ jobs:
     
   
     steps:
-    - name: Show current folder
-      run: ls -la
       
     - uses: actions/checkout@v2
 
-    - name: Create build folder
+    - name: Go to bidirectionallist folder
       run: |
         cd bidirectional\ list
     
     - name: check
       run: ls -la
     
-    - name: build folder
-      run: |
-        mkdir build
-        cd build
-        
-    - name: Configure cmake
-      run: cmake ..
-    
-    - name: Build
-      run: cmkae --build .
   
