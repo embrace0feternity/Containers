@@ -12,7 +12,7 @@ jobs:
   
     steps:
     - name: show directory
-      run: ll
+      run: ls -la
     
     - name: Git clone
       run: actions/checkout@v2
@@ -23,6 +23,6 @@ jobs:
         cd build
     
     - name: show directory
-      run: ll
+      run: ls -la
   
   
