@@ -23,6 +23,9 @@ jobs:
         cd bidirectional\ list
     
     - name: check
-      run: ls bidirectional\ list
+      run: ls 
+    
+    - name: mkdir build
+      run: mkdir build
     
   
