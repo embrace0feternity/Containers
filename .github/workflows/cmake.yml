@@ -19,6 +19,12 @@ jobs:
     - name: Create build folder
       run: |
         cd bidirectional\ list
+    
+    - name: check
+      run: ls- la
+    
+    - name: build folder
+      run: |
         mkdir build
         cd build
         
