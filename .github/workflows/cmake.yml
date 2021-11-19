@@ -24,6 +24,6 @@ jobs:
         mkdir build 
         cd build
         cmake ..
-        cmame --build .
+        cmake --build .
     
   
