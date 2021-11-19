@@ -32,7 +32,11 @@ jobs:
     
     - name: execute gTests
       run: |
+        ls -la
         cd bidirectional\ list
+        ls -la
         cd build
+        ls -la
         cd gTests
+        ls -la
         ./gTests --gtest_shuffle --gtest_repeat=20 --gtest_break_on_failure 
