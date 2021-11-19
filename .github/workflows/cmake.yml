@@ -24,11 +24,6 @@ jobs:
         cd build
         cmake ..
         cmake --build .
-  test:
-    runs-on: ubuntu-latest
-    needs: [build]
-    
-    steps:
     
     - name: execute gTests
       run: |
