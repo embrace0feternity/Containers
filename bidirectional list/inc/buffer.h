@@ -26,7 +26,7 @@ namespace customList {
 
         T* push(T &&node, T* tail) {
             mFictitious = tail;
-            T* tempPointer = &mBuff[0];
+            T* tempPointer = mBuff.begin();
 
             while (tempPointer != mBuff.end())  // go along the buffer
             {
