@@ -23,6 +23,6 @@ jobs:
         cd bidirectional\ list
     
     - name: check
-      run: ls -la
+      run: ls bidirectional\ list
     
   
