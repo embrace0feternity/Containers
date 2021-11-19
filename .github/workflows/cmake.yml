@@ -1,0 +1,28 @@
+name: CMake
+
+on:
+  push:
+    branches:
+      - master 
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+  
+    steps:
+    - name: show directory
+      run: ll
+    
+    - name: Git clone
+      run: actions/checkout@v2
+
+    - name: Configure CMake
+      run: |
+        mkdir build
+        cd build
+    
+    - name: show directory
+      run: ll
+  
+  
