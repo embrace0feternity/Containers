@@ -18,11 +18,12 @@ jobs:
       run: ls -la
     
 
-    - name: Go to bidirectionallist folder
+    - name: Configure cmake
       run: |
         cd bidirectional\ list
-        ls
-        mkdir build
-        ls -la
+        mkdir build 
+        cd build
+        cmake ..
+        cname --build .
     
   
