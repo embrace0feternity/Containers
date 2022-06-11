@@ -24,6 +24,7 @@ jobs:
         cd build
         cmake ..
         cmake --build .
+        echo "hi"
     
     - name: execute gTests
       run: |
