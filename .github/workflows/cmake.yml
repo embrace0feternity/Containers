@@ -12,12 +12,14 @@ jobs:
   
     steps:
     - uses: actions/checkout@v2
+    
     - name: test qt
       run: |
         ls -la
         mkdir build
         cd build
         cmake ..
+        cmake --build .
         ls -la
       
       
