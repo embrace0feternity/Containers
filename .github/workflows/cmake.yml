@@ -7,13 +7,19 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: embrace0feternity
     
   
     steps:
-      
     - uses: actions/checkout@v2
-    
+    - name: test qt
+      run: |
+        mkdir build
+        cd build
+        cmake ..
+        ls -la
+      
+      
     - name: check
       run: ls -la
 
